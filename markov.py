@@ -7,23 +7,19 @@ with open('alice.txt', 'r') as content_file:
 
 print(type(content))
 blob = TextBlob(content);
-w = blob.words
+allWords = blob.words
 
-unique_words = []
+uniqueWords = []
 
-for word in w:
-    if word not in unique_words:
-        unique_words.append(word)
+for word in allWords:
+    if word not in uniqueWords:
+        uniqueWords.append(word)
 
-n = len(unique_words)
-transition = numpy.zeros(shape=(n,n));
+length = len(unique_words)
+transition = numpy.zeros(shape=(length,length));
 
-for i in range(1, n+1):
-    index = 0;
-    while(index != -1):
-        pos = w.index(unique_words[i-1])
-        j = w.index(unique_words[i+1])
-        transition[i-1, j] +=1;
-print(transition)
-
-
+for i in range(0, length):
+    for j in range(0, len(allWords)-1):
+       if allWords[j] == uniqueWords[i]:
+           index = uniqueWords.index(allWords[j+1])
+           transition[i, index] +=1;
