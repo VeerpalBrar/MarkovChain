@@ -15,11 +15,16 @@ for word in allWords:
     if word not in uniqueWords:
         uniqueWords.append(word)
 
-length = len(unique_words)
+length = len(uniqueWords)
 transition = numpy.zeros(shape=(length,length));
 
-for i in range(0, length):
-    for j in range(0, len(allWords)-1):
-       if allWords[j] == uniqueWords[i]:
-           index = uniqueWords.index(allWords[j+1])
-           transition[i, index] +=1;
+for i in range(1, len(allWords)):
+    row = uniqueWords.index(allWords[i-1])
+    column = uniqueWords.index(allWords[i])
+    transition[row, column] +=1;
+
+#divide element by row sum
+with numpy.errstate(divide='ignore',invalid='ignore'):
+    transition = transition/transition.sum(axis=1, keepdims=True)
+
+
