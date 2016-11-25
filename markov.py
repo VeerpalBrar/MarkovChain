@@ -2,10 +2,9 @@ from textblob import TextBlob
 import numpy
 
 
-with open(r'C:\Users\Veerpal\Documents\GitHub\markov\alice.txt', 'r') as content_file:
+with open('alice.txt', 'r') as content_file:
     content = content_file.read().replace('\n', '')
 
-print(type(content))
 blob = TextBlob(content);
 allWords = blob.words
 
