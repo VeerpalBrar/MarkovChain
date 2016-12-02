@@ -4,7 +4,7 @@ import numpy
 order = 3  # the length of n-grams. Must be integer >= 0
 sentenceLength = 50  # how many words the generated output should be
 
-with open(r'C:\Users\Veerpal\Documents\GitHub\markov\alice.txt', 'r') as content_file:
+with open('alice.txt', 'r') as content_file:
     content = content_file.read().replace('\n', ' ')
 
 blob = TextBlob(content);
