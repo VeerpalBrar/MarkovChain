@@ -1,24 +1,29 @@
-from textblob import TextBlob
+import nltk
+from nltk import word_tokenize
+from nltk.util import ngrams
 import numpy
 
 order = 3  # the length of n-grams. Must be integer >= 0
 sentenceLength = 50  # how many words the generated output should be
 
-with open('alice.txt', 'r') as content_file:
+with open('\alice.txt', 'r') as content_file:
     content = content_file.read().replace('\n', ' ')
 
-blob = TextBlob(content);
-allWords = blob.words
+# generate n grams
+allWords = nltk.word_tokenize(content)
+gramWords = list(ngrams(allWords, order))
+gramWords = [list(elem) for elem in gramWords]
 
+#find all unique words
 uniqueWords = []
 for word in allWords:
     if word not in uniqueWords:
         uniqueWords.append(word)
 
-gramWords = blob.ngrams(n=order);
-
+#generate transition matrix
 rowLength = len(gramWords)
 colLength = len(uniqueWords)
+print(rowLength, colLength)
 transition = numpy.zeros(shape=(rowLength,colLength));
 
 for i in range(order, len(allWords)):
@@ -27,7 +32,7 @@ for i in range(order, len(allWords)):
     transition[row, column] +=1;
 
 
-# divide element by row sum
+# divide element by row sum to get easier probabilities
 with numpy.errstate(divide='ignore',invalid='ignore'):
     transition /= transition.sum(axis=1, keepdims=True)
 
@@ -50,4 +55,14 @@ for i in range(sentenceLength):
         break;
     current = gramWords.index(gram)
     markov.extend([uniqueWords[next]])
-print("output: ", " ".join(markov))
+
+#generate output
+output = markov[0]
+characters='.,;?!'
+for word in markov[1:]:
+    if word in characters:
+        output+=word
+    else:
+        output+=" " + word
+print("output: ", output)       
+
