@@ -5,15 +5,21 @@ import numpy
 
 order = 2  # the length of n-grams. Must be integer >= 0
 sentenceLength = 50  # how many words the generated output should be
-num_of_outputs = 50 # how many different markov chains you want to generate
+numOfOutputs = 10 # how many different markov chains you want to generate
 
-with open(r'C:\Users\Veerpal\Documents\GitHub\markov\text.txt', 'r') as content_file:
+with open('\alice.txt', 'r') as content_file:
     content = content_file.read()
 
 # generate n grams
 allWords = nltk.word_tokenize(content)
-gramWords = list(ngrams(allWords, order))
-gramWords = [list(elem) for elem in gramWords]
+grams = list(ngrams(allWords, order))
+grams = [list(elem) for elem in grams]
+
+#remove duplicates
+gramWords = []
+for ngram in grams:
+    if ngram not in gramWords:
+        gramWords.append(ngram)
 
 #find all unique words
 uniqueWords = []
@@ -24,7 +30,6 @@ for word in allWords:
 #generate transition matrix
 rowLength = len(gramWords)
 colLength = len(uniqueWords)
-print(rowLength, colLength)
 transition = numpy.zeros(shape=(rowLength,colLength));
 
 for i in range(order, len(allWords)):
@@ -32,25 +37,20 @@ for i in range(order, len(allWords)):
     column = uniqueWords.index(allWords[i])
     transition[row, column] +=1;
 
-
-# divide element by row sum to get easier probabilities
-with numpy.errstate(divide='ignore',invalid='ignore'):
-    transition /= transition.sum(axis=1, keepdims=True)
-
 # begin text generation
-for chain in range(num_of_outputs):
+for chain in range(numOfOutputs):
     markov = []
     current = numpy.random.randint(0, len(gramWords))
     markov.extend(gramWords[current])
     for i in range(sentenceLength):
         rand = numpy.random.random(1)[0]
-        sum = 0;
+        sum = 0
+        if numpy.sum(transition[current]) == 0.0:
+            break
         for next in range(0, colLength):
             sum += transition[current][next]
-            if sum > rand :
-                break;
-        if(next >= colLength):
-            break 
+            if sum/numpy.sum(transition[current]) > rand :
+                break
         
         gram = []
         for num in range(1, order):
@@ -58,7 +58,7 @@ for chain in range(num_of_outputs):
         gram.append(uniqueWords[next])
 
         if(gram not in gramWords):
-            break;
+            break
         current = gramWords.index(gram)
         markov.extend([uniqueWords[next]])
 
@@ -70,5 +70,5 @@ for chain in range(num_of_outputs):
             output+=word
         else:
             output+=" " + word
-    print("output "+ str(chain+1) + ": ", output)       
-
+    print("output "+ str(chain+1) + ": ", output) 
+    print() #empty line for clarity
