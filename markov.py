@@ -3,11 +3,12 @@ from nltk import word_tokenize
 from nltk.util import ngrams
 import numpy
 
-order = 3  # the length of n-grams. Must be integer >= 0
+order = 2  # the length of n-grams. Must be integer >= 0
 sentenceLength = 50  # how many words the generated output should be
+num_of_outputs = 50 # how many different markov chains you want to generate
 
-with open('\alice.txt', 'r') as content_file:
-    content = content_file.read().replace('\n', ' ')
+with open(r'C:\Users\Veerpal\Documents\GitHub\markov\text.txt', 'r') as content_file:
+    content = content_file.read()
 
 # generate n grams
 allWords = nltk.word_tokenize(content)
@@ -37,32 +38,37 @@ with numpy.errstate(divide='ignore',invalid='ignore'):
     transition /= transition.sum(axis=1, keepdims=True)
 
 # begin text generation
-markov = []
-current = numpy.random.randint(0, len(gramWords))
-markov.extend(gramWords[current])
-for i in range(sentenceLength):
-    rand = numpy.random.random(1)[0]
-    sum = 0;
-    for next in range(0, colLength):
-        sum += transition[current][next]
-        if sum > rand :
+for chain in range(num_of_outputs):
+    markov = []
+    current = numpy.random.randint(0, len(gramWords))
+    markov.extend(gramWords[current])
+    for i in range(sentenceLength):
+        rand = numpy.random.random(1)[0]
+        sum = 0;
+        for next in range(0, colLength):
+            sum += transition[current][next]
+            if sum > rand :
+                break;
+        if(next >= colLength):
+            break 
+        
+        gram = []
+        for num in range(1, order):
+            gram.append(gramWords[current][num])
+        gram.append(uniqueWords[next])
+
+        if(gram not in gramWords):
             break;
-    if(next >= colLength):
-        break 
+        current = gramWords.index(gram)
+        markov.extend([uniqueWords[next]])
 
-    gram = [gramWords[current][1], gramWords[current][2], uniqueWords[next]]
-    if(gram not in gramWords):
-        break;
-    current = gramWords.index(gram)
-    markov.extend([uniqueWords[next]])
-
-#generate output
-output = markov[0]
-characters='.,;?!'
-for word in markov[1:]:
-    if word in characters:
-        output+=word
-    else:
-        output+=" " + word
-print("output: ", output)       
+    #generate output
+    output = markov[0]
+    characters='.,;?!'
+    for word in markov[1:]:
+        if word in characters:
+            output+=word
+        else:
+            output+=" " + word
+    print("output "+ str(chain+1) + ": ", output)       
 
